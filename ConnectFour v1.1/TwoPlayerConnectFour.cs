@@ -82,6 +82,7 @@ namespace ConnectFour_v1._1
             Rectangle myRectangle = new Rectangle(daBox.X, daBox.Y, daBox.Width, daBox.Height);
             graphicsObj.DrawRectangle(myPen, myRectangle);
         }
+        //Creates an image when a piece is dropped
         private void PieceDrop(Boxes daBox)
         {
             System.Drawing.Graphics graphicsObj;
@@ -96,6 +97,7 @@ namespace ConnectFour_v1._1
             Rectangle myRectangle = new Rectangle(daBox.X, yCoor, daBox.Width, daBox.Height);
             graphicsObj.DrawRectangle(myPen, myRectangle);
         }
+        //Finds the lowest empty place, used by various 
         private int FindLowestEmpty(Boxes daBox)
         {
             int i = 0;
@@ -105,6 +107,7 @@ namespace ConnectFour_v1._1
             }
             return i;
         }
+        //Updates the Data array when a piece is dropped
         private void DataUpdate(Boxes daBox)
         {
             int i = FindLowestEmpty(daBox);
@@ -116,6 +119,7 @@ namespace ConnectFour_v1._1
             }
             CheckFourInARow(i, daBox.Column);
         }
+        //Checks the values around the dropped piece for win
         private void CheckFourInARow(int currentRow, int currentColumn)
         {
             int currentValue = Data [currentRow, currentColumn];
@@ -128,6 +132,7 @@ namespace ConnectFour_v1._1
                 }
             }
         }
+        //Uses the Values from CheckFourInARow to check further spots
         private bool CheckSpot(int rowDirection, int columnDirection, int currentValue, int currentRow, int currentColumn)
         {
             bool match = false;
