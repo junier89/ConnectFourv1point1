@@ -13,8 +13,8 @@ namespace ConnectFour_v1._1
     public partial class TwoPlayerConnectFour : Form
     {
         int[,] Data = new int[6, 7];
-        Boxes Box1 = new Boxes();
-        Boxes BackgroundBox = new Boxes(0, 0, 500, 500);
+        Box Box1 = new Box();
+        Box BackgroundBox = new Box(0, 0, 500, 500);
         public TwoPlayerConnectFour()
         {
             InitializeComponent();
@@ -22,7 +22,13 @@ namespace ConnectFour_v1._1
 
         private void TwoPlayerConnectFour_Load(object sender, EventArgs e)
         {
-          
+            for (var row = 0; row < 6; row++)
+            {
+                for (int column = 0; column < 7; column++)
+                {
+                    Data[row, column] = 0;
+                }
+            } 
         }
         private void TwoPlayerConnectFour_Paint(object sender, PaintEventArgs e)
         {
@@ -32,10 +38,9 @@ namespace ConnectFour_v1._1
         }
         private void BackgroundDrawer()
         {
-            System.Drawing.Graphics graphicsObj;
-            graphicsObj = this.CreateGraphics();
-            Pen myPen = new Pen(System.Drawing.Color.Black, 5);
-            for (int i = 0; i < 8; ++i)
+            var graphicsObj = this.CreateGraphics();
+            var myPen = new Pen(System.Drawing.Color.Black, 5);
+            for (var i = 0; i < 8; ++i)
             {
                 int xCoor = ((i * 64) + 26);
                 graphicsObj.DrawLine(myPen, xCoor, 96, xCoor, 485);
@@ -53,7 +58,7 @@ namespace ConnectFour_v1._1
                 }
             }
         }
-        private void BoxDrawer(Boxes daBox)
+        private void BoxDrawer(Box daBox)
         {
             System.Drawing.Graphics graphicsObj;
             graphicsObj = this.CreateGraphics();
@@ -65,7 +70,7 @@ namespace ConnectFour_v1._1
             Rectangle myRectangle = new Rectangle(daBox.X, daBox.Y, daBox.Width, daBox.Height);
             graphicsObj.DrawRectangle(myPen, myRectangle);
         }
-        private void BoxDrawer(Boxes daBox, Color color)
+        private void BoxDrawer(Box daBox, Color color)
         {
             System.Drawing.Graphics graphicsObj;
             graphicsObj = this.CreateGraphics();
@@ -74,7 +79,7 @@ namespace ConnectFour_v1._1
             graphicsObj.DrawRectangle(myPen, myRectangle);
 
         }
-        private void BoxEraser(Boxes daBox)
+        private void BoxEraser(Box daBox)
         {
             System.Drawing.Graphics graphicsObj;
             graphicsObj = this.CreateGraphics();
@@ -83,7 +88,7 @@ namespace ConnectFour_v1._1
             graphicsObj.DrawRectangle(myPen, myRectangle);
         }
         //Creates an image when a piece is dropped
-        private void PieceDrop(Boxes daBox)
+        private void PieceDrop(Box daBox)
         {
             System.Drawing.Graphics graphicsObj;
             graphicsObj = this.CreateGraphics();
@@ -96,23 +101,26 @@ namespace ConnectFour_v1._1
             int yCoor = 428 - (i * 64);
             Rectangle myRectangle = new Rectangle(daBox.X, yCoor, daBox.Width, daBox.Height);
             graphicsObj.DrawRectangle(myPen, myRectangle);
+            DataUpdate(daBox, i);
         }
         //Finds the lowest empty place, used by various 
-        private int FindLowestEmpty(Boxes daBox)
+        private int FindLowestEmpty(Box daBox)
         {
             int i = 0;
-            while (Data[i, Box1.Column] != 0)
+            while (Data[i, daBox.Column] > 0)
             {
-                i++;
+                ++i;
             }
+            label1.Text = label1.Text + i.ToString() + ", ";
             return i;
         }
         //Updates the Data array when a piece is dropped
-        private void DataUpdate(Boxes daBox)
+        private void DataUpdate(Box daBox, int i)
         {
-            int i = FindLowestEmpty(daBox);
             if (daBox.Turn % 2 == 0)
+            {
                 Data[i, daBox.Column] = 2;
+            }
             else
             {
                 Data[i, daBox.Column] = 1;
@@ -122,31 +130,29 @@ namespace ConnectFour_v1._1
         //Checks the values around the dropped piece for win
         private void CheckFourInARow(int currentRow, int currentColumn)
         {
-            int currentValue = Data [currentRow, currentColumn];
             for (int rowDirection = -1; rowDirection <= 1; ++rowDirection)
             {
                 for (int columnDirection = -1; columnDirection <= 1; ++columnDirection)
                 {
-                    bool connectFour = CheckSpot(rowDirection, columnDirection, currentValue, currentRow, currentColumn);
-                    label4.Text = connectFour.ToString();
+                    CheckSpot(rowDirection, columnDirection, currentRow, currentColumn);
                 }
             }
         }
         //Uses the Values from CheckFourInARow to check further spots
-        private bool CheckSpot(int rowDirection, int columnDirection, int currentValue, int currentRow, int currentColumn)
+        private void CheckSpot(int rowDirection, int columnDirection, int currentRow, int currentColumn)
         {
-            bool match = false;
+            int currentValue = Data[currentRow, currentColumn];
             int row = rowDirection + currentRow;
             int column = columnDirection + currentColumn;
             int numberInARow = 1;
             while ((row >= 0) && (column >= 0) && (row <= 5) && (column <= 6) && (numberInARow < 4) && 
-                (rowDirection !=0) && (columnDirection != 0))
+                ((rowDirection != 0) || (columnDirection != 0)))
             {
                 if ((Data[row, column] == currentValue) )
                 {
                     row = rowDirection + row;
                     column = columnDirection + column;
-                    ++numberInARow;
+                    numberInARow++;
                     label2.Text = numberInARow.ToString();
                 }
                 else
@@ -158,7 +164,6 @@ namespace ConnectFour_v1._1
             {
                 label1.Text = "We have a winner!";
             }
-            return match;
         }
         private void TwoPlayerConnectFour_KeyUp(object sender, KeyEventArgs e)
         {
@@ -179,7 +184,6 @@ namespace ConnectFour_v1._1
             else if ((e.KeyCode.Equals(Keys.Enter) || e.KeyCode.Equals(Keys.Down)) && (Data[5, Box1.Column] == 0))
             {
                 PieceDrop(Box1);
-                DataUpdate(Box1);
                 Box1.Turn = Box1.Turn + 1;
                 BoxDrawer(Box1);
                 label3.Text = Data[0, Box1.Column].ToString();
@@ -187,31 +191,4 @@ namespace ConnectFour_v1._1
 
         }
     }
-    class Boxes
-    {
-        public int X { get; set; }
-        public int Width { get; set; }
-        public int Y { get; set; }
-        public int Height { get; set; }
-        public int Turn { get; set; }
-        public int Column { get; set; }
-
-        public Boxes()
-        {
-            X = 33;
-            Width = 50;
-            Y = 25;
-            Height = 50;
-            Turn = 15;
-            Column = 0;
-        }
-        public Boxes(int x, int y, int width, int height)
-        {
-            this.X = x;
-            this.Y = y;
-            this.Width = width;
-            this.Height = height;
-        }
-    }
-
 }
