@@ -167,28 +167,38 @@ namespace ConnectFour_v1._1
         }
         private void TwoPlayerConnectFour_KeyUp(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode.Equals(Keys.Right) && (Box1.X != 417))
+            var isOnLeftSide = (Box1.X == 417);
+            var isOnRightSide = (Box1.X == 33);
+            var columnIsFull = (Data[5, Box1.Column] == 0);
+            switch (e.KeyCode)
             {
-                BoxEraser(Box1);
-                Box1.X = Box1.X + 64;
-                BoxDrawer(Box1);
-                Box1.Column = Box1.Column + 1;
+                case Keys.Right:
+                    if (!isOnLeftSide)
+                        MoveBoxHorizontally(64, 1);
+                    break;
+                case Keys.Left:
+                    if(!isOnRightSide)
+                        MoveBoxHorizontally(-64, -1);
+                    break;
+                case Keys.Enter:
+                case Keys.Down:
+                    if (!columnIsFull)
+                    {
+                        PieceDrop(Box1);
+                        Box1.Turn = Box1.Turn + 1;
+                        BoxDrawer(Box1);
+                        label3.Text = Data[0, Box1.Column].ToString();
+                    }
+                    break;
             }
-            else if (e.KeyCode.Equals(Keys.Left) && (Box1.X != 33))
-            {
-                BoxEraser(Box1);
-                Box1.X = Box1.X - 64;
-                BoxDrawer(Box1);
-                Box1.Column = Box1.Column - 1;
-            }
-            else if ((e.KeyCode.Equals(Keys.Enter) || e.KeyCode.Equals(Keys.Down)) && (Data[5, Box1.Column] == 0))
-            {
-                PieceDrop(Box1);
-                Box1.Turn = Box1.Turn + 1;
-                BoxDrawer(Box1);
-                label3.Text = Data[0, Box1.Column].ToString();
-            }
+        }
 
+        private void MoveBoxHorizontally(int horizontalOffset, int columnOffset)
+        {
+            BoxEraser(Box1);
+            Box1.X += horizontalOffset;
+            BoxDrawer(Box1);
+            Box1.Column += columnOffset;
         }
     }
 }
